@@ -1,0 +1,9 @@
+- hosts: all
+  gather_facts: yes
+  roles:
+     - resource_group
+     - network_interface
+     - create_vm
+     - create_disk
+       
+

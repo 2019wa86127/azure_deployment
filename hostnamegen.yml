@@ -1,0 +1,44 @@
+- hosts: localhost
+  gather_facts: false
+  tasks:
+     - set_fact:
+           reg: USE
+       when: region == "eastus"
+     - set_fact:
+           reg: APN
+       when: '"india" in region'
+     - set_fact:
+           reg: EUW
+       when: '"europe" in region'
+     - set_fact:
+           service: APP
+       when: usedfor == "Application Server"
+     - set_fact:
+           service: WEB
+       when: usedfor == "Web Server"
+     - set_fact:
+           service: DBS
+       when: usedfor == "Database Server"
+     - set_fact:
+           service: CTX
+       when: usedfor == "Citrix Server"
+     - set_fact:
+           service: SMS
+       when: usedfor == "SMS Server"
+       
+     - set_fact:
+          reg: VA09
+          service: ADC
+       when: (region == "eastus") and (usedfor == "Active Directory")
+       
+     - set_fact:
+          reg: II49
+          service: ADC
+       when: (region == "centralindia") and (usedfor == "Active Directory")
+       
+     - name: Generate Hostname
+       shell: curl "http://hostnamegen.spglobal.com/?region={{reg}}&service={{service}}"
+       register: hn
+     - set_stats:
+         data:
+            hostname: "{{hn.stdout}}"

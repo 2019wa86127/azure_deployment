@@ -1,0 +1,113 @@
+---
+# tasks file for create_vm
+- include_vars: vars/vars/{{os}}/image.yml
+
+- set_fact:
+    support_group: "WiPro-Unix"
+  when: 
+     - (os == 'RHEL7' or os == 'RHEL8' or os == 'RHEL9')
+- set_fact:
+     support_group: "WiPro-Wintel"
+  when: 
+     - ('Windows' in os)
+     
+- name: Create VM
+  azure_rm_virtualmachine:
+    ad_user: "{{username}}"
+    password: "{{password}}"
+    subscription_id: "{{sub_id}}"
+    resource_group: "{{rg_name}}"
+    name: "{{hostname}}"
+    network_interfaces: "{{hostname}}_nic"
+    vm_size: "{{vm_size}}"
+    admin_username: "{{admin_user}}"
+    admin_password: "{{admin_password}}"
+    #ssh_password_enabled: true
+    os_type: Windows
+    managed_disk_type: "{{os_disk_type}}"
+    license_type: Windows_Server
+    image:
+       id: /subscriptions/bd499f1d-8ecf-402f-9962-795f68eff2c0/resourceGroups/ProductEngineering/providers/Microsoft.Compute/galleries/CorporateImages/images/{{spgi_os}}/versions/latest
+    tags:
+        Name: "{{hostname}}"
+        Owner: "{{owner_email}}"
+        AppID: "{{app_id}}"
+        BU: "{{bu}}"
+        Environment: "{{env}}"
+        MaintenanceWindow: "{{maint_id}}"
+        UsedFor: "{{usedfor}}"
+        SupportGroup: "{{support_group}}"
+        Datadog: "True"
+  register: azurewin
+  when: 
+     - ('Windows' in os)
+
+- name: Create VM
+  azure_rm_virtualmachine:
+    ad_user: "{{username}}"
+    password: "{{password}}"
+    subscription_id: "{{sub_id}}"
+    resource_group: "{{rg_name}}"
+    name: "{{hostname}}"
+    network_interfaces: "{{hostname}}_nic"
+    vm_size: "{{vm_size}}"
+    ssh_password_enabled: true
+    admin_username: "{{admin_user}}"
+    admin_password: "{{admin_password}}"
+    os_type: Linux
+    managed_disk_type: "{{os_disk_type}}"
+    image:
+       id: /subscriptions/bd499f1d-8ecf-402f-9962-795f68eff2c0/resourceGroups/ProductEngineering/providers/Microsoft.Compute/galleries/CorporateImages/images/{{spgi_os}}/versions/latest
+    tags:
+        Name: "{{hostname}}"
+        Owner: "{{owner_email}}"
+        AppID: "{{app_id}}"
+        BU: "{{bu}}"
+        Environment: "{{env}}"
+        MaintenanceWindow: "{{maint_id}}"
+        UsedFor: "{{usedfor}}"
+        SupportGroup: "{{support_group}}"
+        Datadog: "True"
+  register: azurewin
+  when: 
+    - ('RHEL' in os)
+
+
+- debug: 
+    msg: "{{ azurewin.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.privateIPAddress }}"
+
+#- set_stats:
+#    ip: "{{ azurewin.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.privateIPAddress }}"
+
+- set_stats:
+     data:
+      ip: "{{ azurewin.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.privateIPAddress }}"
+      dc: VA06
+      lc: vars
+  when: region == 'eastus'
+
+- set_stats:
+     data:
+      ip : "{{ azurewin.ansible_facts.azure_vm.properties.networkProfile.networkInterfaces[0].properties.ipConfigurations[0].properties.privateIPAddress }}"
+      dc: IR01
+      lc: vars
+  when: region == 'northeurope'  
+
+- name: Update Ansible post task inventory
+  uri:
+    url: https://ansible-controller.mhf.mhc/#/inventories/inventory/2/hosts
+    user: admin
+    password: Wipro@123
+    method: POST
+    body: testing
+    #body: '{"name": "{{item.private_ip}}","variables": "hnname: {{hostname}}\ncomputerdesc: {{description}}\nresolver_domain: {{domain}}\nDC_code: {{dc}}\nLC_code: vars\nenv: {{env}}"}'
+    force_basic_auth: yes
+    body_format: json
+    status_code: 201
+    validate_certs: no
+  #loop: "{{azurewin.ansible_facts.azure_vm}}"
+  when: os == "windows"
+
+#- name: debug temp
+#  debug: "{{interface.state.ip_configurations[0].private_ip_address}}"
+       

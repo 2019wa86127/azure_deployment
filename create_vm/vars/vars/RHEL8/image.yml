@@ -1,0 +1,6 @@
+  
+offer: RedHat
+sku: RHEL8-RAW
+publisher: DTS-Linux-Product-Engineering
+spgi_os: SPGI.RHEL8.X
+version: 21.4.1

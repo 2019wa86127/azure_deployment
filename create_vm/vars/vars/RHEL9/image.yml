@@ -1,0 +1,5 @@
+offer: RedHat
+sku: RHEL9-RAW
+publisher: DTS-Linux-Product-Engineering
+spgi_os: SPGI.RHEL9.X
+version: 21.4.1

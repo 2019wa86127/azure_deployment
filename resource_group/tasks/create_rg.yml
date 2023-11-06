@@ -1,0 +1,14 @@
+- name: Create a resource group
+  azure_rm_resourcegroup:
+    ad_user: "{{username}}"
+    password: "{{password}}"
+    subscription_id: "{{sub_id}}"
+    name: "{{rg_name}}"
+    location: "{{region}}"
+    tags:
+        Name: "{{rg_name}}"
+        Owner: "{{owner_email}}"
+        AppID: "{{app_id}}"
+        BU: "{{bu}}"
+        Environment: "{{env}}"
+        Datadog: "True"

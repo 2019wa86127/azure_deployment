@@ -1,0 +1,5 @@
+offer: RedHat
+sku: RHEL7-RAW
+publisher: DTS-Linux-Product-Engineering
+spgi_os: SPGI.RHEL7.X
+version: 21.4.1

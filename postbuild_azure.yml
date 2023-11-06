@@ -1,0 +1,77 @@
+---
+- hosts: localhost
+  tasks:    
+    - add_host:
+       name: "{{ipaddr}}"
+       groups: new_azure_win
+       ansible_user: "{{admin_user}}"
+       ansible_password: "{{admin_password}}"
+       ansible_connection: winrm
+       ansible_port: 5986
+       ansible_winrm_server_cert_validation: ignore
+       hnname: "{{hostname}}"
+       computerdesc: "'{{owner_email}}'/'{{app_id}}'/Prod"
+       env: "{{env}}"
+       resolver_domain: MHF
+       DC_code: "{{dc}}"
+       LC_code: "{{lc}}"
+       #format_disk: "{{add_disk}}"
+       div: "{{bu}}"
+       #ansible_winrm_transport: ntlm
+      when:
+          - ('Windows' in os)
+    - add_host:
+       name: "{{ipaddr}}"
+       ansible_connection: ssh
+       groups: new_azure_lin
+       hn: "{{hostname}}"
+       ansible_ssh_user: "{{admin_user}}"
+       ansible_ssh_password: "{{admin_password}}"
+       ansible_become_password: "{{admin_password}}"
+       avamar_install: "no"
+       resolver_domain: MHF
+       fqdn: mhf.mhc
+       domain_join: "yes"
+       qas_admin: "{{ADMIN_ID}}"
+       qas_admin_pass: "{{ADMIN_PASSWORD}}"
+       repo_domain: EWDC_Internal
+       fs_create: "{{add_disk}}"
+       network: "NON-DMZ"
+       div: "corp"
+       DC_code: VA07
+       LC_code: vars
+       env: "{{env}}"
+      when:
+          - ('RHEL' in os)
+        
+- hosts: new_azure_win
+  gather_facts: true
+  become_method: runas
+  roles:
+    - computername
+    - disk_initialize
+    - datadog
+    - splunk
+#    - backupagent
+    - server_config
+    - domainjoin
+#    - rapid7
+    - report
+#    - grouppolicy
+
+- hosts: new_azure_lin
+  gather_facts: true
+  become: true
+  roles:
+    - linux_roles/update_resolve
+    - linux_roles/qas_samba
+    - linux_roles/server_config
+    - linux_roles/disableipv6
+#    - linux_roles/splunk
+    - linux_roles/setuprepo
+    - linux_roles/datadog
+    - linux_roles/services
+    - linux_roles/updateos
+#    - linux_roles/rapid7agent
+    - linux_roles/disk_provisioning
+    - linux_roles/report

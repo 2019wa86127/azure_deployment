@@ -1,0 +1,7 @@
+offer: Windows-Server
+sku: Windows-Server-2019C
+publisher: DTS-Windows-Product-Engineering
+spgi_os: SPGI.W2K19.CORE
+#version: 21.4.1
+version: latest
+

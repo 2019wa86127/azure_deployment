@@ -1,0 +1,11 @@
+---
+# tasks file for create_disk
+- set_fact:
+    size: "{{disk_size}}"
+
+- debug:
+   var: size
+   
+- include: create_disk.yml
+  #when: '(add_disk ="yes") or (size != "None") or (size != "") or (size != "0")'
+  when: add_disk is defined

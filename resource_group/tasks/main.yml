@@ -1,0 +1,50 @@
+---
+# tasks file for resource_group
+#- include_vars: vars/vars/{{os}}/image.yml
+
+- set_fact:
+    vnet_rg: "rg-ess-vdi-vm-centralindia-spokenet-prod-01"
+  when: vnet == 'vnet-ess-vdi-vm-centralindia-prod-01'
+  
+- set_fact:
+    vnet_rg: "rg-ess-shared-services-centralindia-spokenet-prod-01"
+  when: vnet == 'vnet-ess-shared-services-centralindia-prod-01'
+
+- set_fact:
+    vnet_rg: "rg-ess-vdi-info-vm-centralindia-spokenet-prod-01"
+  when: vnet == 'vnet-ess-vdi-info-vm-centralindia-prod-01'
+
+- set_fact:
+    vnet_rg: "rg-ess-vdi-info-vm-northeurope-spokenet-prod-01"
+  when: vnet == 'vnet-ess-vdi-info-vm-northeurope-prod-01'
+
+- set_fact:
+    vnet_rg: "rg-ess-shared-services-northeurope-spokenet-prod-01"
+  when: vnet == 'vnet-ess-shared-services-northeurope-prod-01'
+  
+- set_fact:
+    vnet_rg: "rg-ess-vdi-vm-northeurope-spokenet-prod-01"
+  when: vnet == 'vnet-ess-vdi-vm-northeurope-prod-01'  
+- set_fact:
+    vnet_rg: "rg-corp-nonprod-1-spokenet-nonprod-01"
+  when: vnet == 'vnet-corp-nonprod-1-eastus-prod-01'
+  
+- set_fact:
+    vnet_rg: "rg-corp-prod-1-spokenet-prod-01"
+  when: vnet == 'vnet-corp-prod-1-eastus-prod-01'
+
+- set_fact:
+    vnet_rg: "rg-ess-shared-services-1-spokenet-prod-01"
+  when: vnet == 'vnet-ess-shared-services-1-eastus-prod-01'
+
+- set_fact:
+    support_group: "WiPro-Unix"
+  when: 
+     - (os == 'RHEL7' or os == 'RHEL8')
+- set_fact:
+     support_group: "WiPro-Wintel"
+  when: 
+     - ('Windows' in os)
+     
+- include: create_rg.yml
+

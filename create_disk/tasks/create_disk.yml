@@ -1,0 +1,21 @@
+- set_fact:
+    sizes: "{{size.split(',')}}"
+#- set_fact:
+#    sizes: "{{size}}"
+      
+- name: Mount the managed disk to VM
+  azure_rm_manageddisk:
+    ad_user: "{{username}}"
+    password: "{{password}}"
+    subscription_id: "{{sub_id}}"    
+    name: "{{hostname}}-data{{index}}"
+    location: "{{region}}"
+    resource_group: "{{rg_name}}"
+    disk_size_gb: "{{item}}"
+    #lun: "{{index}} + 1 "
+    managed_by: "{{hostname}}"
+    storage_account_type: "{{disk_type}}"
+  #loop: "{{ sizes|flatten(levels=5)}}"
+  loop: "{{ sizes }}"
+  loop_control:
+        index_var: index 
